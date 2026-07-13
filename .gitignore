@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environments
+venv/
+.venv/
+backend/venv/
+
+# Environment variables
+.env
+
+# OS / Editor junk
+.vscode/
+.idea/
+.DS_Store
+
+# Logs
+*.log
+
+# Node (frontend later)
+node_modules/
+
+Doc/
