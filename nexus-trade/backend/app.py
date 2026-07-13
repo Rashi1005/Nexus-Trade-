@@ -100,7 +100,8 @@ def create_app():
     app.register_blueprint(watchlist_bp, url_prefix="/api/watchlist")
     app.register_blueprint(portfolio_bp, url_prefix="/api/portfolio")
     app.register_blueprint(trading_bp, url_prefix="/api/trading")
-    app.register_blueprint(analytics_bp, url_prefix="/api/analytics")
+    if Config.ENABLE_ANALYTICS:
+        app.register_blueprint(analytics_bp, url_prefix="/api/analytics")
 
     # -------------------------------
     # Root Route

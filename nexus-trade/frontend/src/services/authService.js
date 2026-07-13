@@ -10,8 +10,9 @@ export const authService = {
     })
     
     if (response.data.success) {
-      const { access_token, user } = response.data.data
+      const { access_token, refresh_token, user } = response.data.data
       localStorage.setItem('token', access_token)
+      if (refresh_token) localStorage.setItem('refresh_token', refresh_token)
       localStorage.setItem('user', JSON.stringify(user))
       return { success: true, user, token: access_token }
     }
@@ -27,8 +28,9 @@ export const authService = {
     })
     
     if (response.data.success) {
-      const { access_token, user } = response.data.data
+      const { access_token, refresh_token, user } = response.data.data
       localStorage.setItem('token', access_token)
+      if (refresh_token) localStorage.setItem('refresh_token', refresh_token)
       localStorage.setItem('user', JSON.stringify(user))
       return { success: true, user, token: access_token }
     }
@@ -44,6 +46,7 @@ export const authService = {
       console.error('Logout error:', error)
     } finally {
       localStorage.removeItem('token')
+      localStorage.removeItem('refresh_token')
       localStorage.removeItem('user')
     }
   },
