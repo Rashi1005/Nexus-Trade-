@@ -14,6 +14,17 @@ logger = logging.getLogger(__name__)
 
 trading_bp = Blueprint('trading', __name__)
 
+def _get_commission_rate():
+    """Return a valid commission rate or None."""
+    commission = getattr(Config, 'COMMISSION_RATE', None)
+    if commission is None:
+        return None
+    try:
+        commission = float(commission)
+    except (TypeError, ValueError):
+        return None
+    return commission if commission >= 0 else None
+
 
 @trading_bp.route('/buy', methods=['POST'])
 @jwt_required()
@@ -76,7 +87,12 @@ def buy_stock():
             }), 404
         
         # Calculate total cost
-        commission = Config.DEFAULT_COMMISSION
+        commission = _get_commission_rate()
+        if commission is None:
+            return jsonify({
+                'success': False,
+                'message': 'Trading configuration error: invalid commission rate'
+            }), 500
         subtotal = current_price * quantity
         total_cost = subtotal + commission
         
@@ -221,7 +237,12 @@ def sell_stock():
         current_price = stock_data['current_price']
         
         # Calculate proceeds
-        commission = Config.DEFAULT_COMMISSION
+        commission = _get_commission_rate()
+        if commission is None:
+            return jsonify({
+                'success': False,
+                'message': 'Trading configuration error: invalid commission rate'
+            }), 500
         subtotal = current_price * quantity
         total_proceeds = subtotal - commission
         
@@ -481,7 +502,12 @@ def quote_and_validate():
             }), 404
         
         current_price = stock_data['current_price']
-        commission = Config.DEFAULT_COMMISSION
+        commission = _get_commission_rate()
+        if commission is None:
+            return jsonify({
+                'success': False,
+                'message': 'Trading configuration error: invalid commission rate'
+            }), 500
         
         # Get user data
         user = get_user_by_id(user_id)

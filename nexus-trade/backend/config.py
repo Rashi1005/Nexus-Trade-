@@ -34,6 +34,7 @@ class Config:
     # Application Settings
     COMMISSION_RATE = float(os.getenv('COMMISSION_RATE', '0.99'))
     INITIAL_BALANCE = float(os.getenv('INITIAL_BALANCE', '10000.00'))
+    ENABLE_ANALYTICS = os.getenv('ENABLE_ANALYTICS', 'false').lower() == 'true'
     
     # CORS Configuration
     CORS_ORIGINS = ['http://localhost:5173', 'http://localhost:3000']

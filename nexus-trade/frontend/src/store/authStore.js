@@ -42,8 +42,8 @@ export const useAuthStore = create(
           const response = await api.post('/auth/login', { email, password })
           
           if (response.data.success) {
-            const { user, token } = response.data.data
-            get().setAuth(user, token)
+            const { user, access_token } = response.data.data
+            get().setAuth(user, access_token)
             set({ loading: false })
             return { success: true }
           } else {
@@ -68,8 +68,8 @@ export const useAuthStore = create(
           })
           
           if (response.data.success) {
-            const { user, token } = response.data.data
-            get().setAuth(user, token)
+            const { user, access_token } = response.data.data
+            get().setAuth(user, access_token)
             set({ loading: false })
             return { success: true }
           } else {
@@ -86,6 +86,7 @@ export const useAuthStore = create(
       // Logout
       logout: () => {
         localStorage.removeItem('token')
+        localStorage.removeItem('refresh_token')
         localStorage.removeItem('user')
         set({
           user: null,
@@ -100,7 +101,8 @@ export const useAuthStore = create(
         try {
           const response = await api.get('/auth/me')
           if (response.data.success) {
-            const updatedUser = response.data.data
+            const updatedUser = response.data.data?.user
+            if (!updatedUser) return
             localStorage.setItem('user', JSON.stringify(updatedUser))
             set({ user: updatedUser })
           }

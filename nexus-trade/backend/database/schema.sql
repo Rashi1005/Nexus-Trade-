@@ -200,6 +200,71 @@ CREATE TABLE user_sessions (
 -- Trigger: Update holdings after order is filled
 DELIMITER //
 
+CREATE TRIGGER after_order_insert_filled
+AFTER INSERT ON orders
+FOR EACH ROW
+BEGIN
+    DECLARE current_quantity INT;
+    DECLARE current_avg_cost DECIMAL(10,2);
+    DECLARE current_total DECIMAL(15,2);
+
+    -- Process direct inserts that are already filled
+    IF NEW.status = 'filled' THEN
+
+        -- Insert transaction record
+        INSERT INTO transactions (user_id, order_id, symbol, transaction_type, quantity, price, commission, total_amount)
+        VALUES (NEW.user_id, NEW.order_id, NEW.symbol, NEW.side, NEW.filled_quantity, NEW.filled_price, NEW.commission, NEW.total_amount);
+
+        -- Handle BUY orders
+        IF NEW.side = 'buy' THEN
+            -- Check if holding exists
+            SELECT quantity, average_cost, total_invested
+            INTO current_quantity, current_avg_cost, current_total
+            FROM holdings
+            WHERE user_id = NEW.user_id AND symbol = NEW.symbol;
+
+            IF current_quantity IS NULL THEN
+                -- Create new holding
+                INSERT INTO holdings (user_id, symbol, quantity, average_cost, total_invested)
+                VALUES (NEW.user_id, NEW.symbol, NEW.filled_quantity, NEW.filled_price, NEW.total_amount);
+            ELSE
+                -- Update existing holding (weighted average cost)
+                UPDATE holdings
+                SET quantity = current_quantity + NEW.filled_quantity,
+                    total_invested = current_total + NEW.total_amount,
+                    average_cost = (current_total + NEW.total_amount) / (current_quantity + NEW.filled_quantity)
+                WHERE user_id = NEW.user_id AND symbol = NEW.symbol;
+            END IF;
+
+            -- Deduct from cash balance
+            UPDATE users
+            SET cash_balance = cash_balance - NEW.total_amount
+            WHERE user_id = NEW.user_id;
+
+        -- Handle SELL orders
+        ELSEIF NEW.side = 'sell' THEN
+            -- Update holding
+            UPDATE holdings
+            SET quantity = quantity - NEW.filled_quantity
+            WHERE user_id = NEW.user_id AND symbol = NEW.symbol;
+
+            -- Delete holding if quantity becomes 0
+            DELETE FROM holdings
+            WHERE user_id = NEW.user_id AND symbol = NEW.symbol AND quantity = 0;
+
+            -- Add to cash balance
+            UPDATE users
+            SET cash_balance = cash_balance + NEW.total_amount
+            WHERE user_id = NEW.user_id;
+        END IF;
+
+        -- Log to audit
+        INSERT INTO audit_log (user_id, action, entity_type, entity_id, new_value)
+        VALUES (NEW.user_id, 'ORDER_FILLED', 'orders', NEW.order_id,
+                CONCAT('Symbol: ', NEW.symbol, ', Side: ', NEW.side, ', Quantity: ', NEW.filled_quantity, ', Price: ', NEW.filled_price));
+    END IF;
+END//
+
 CREATE TRIGGER after_order_filled
 AFTER UPDATE ON orders
 FOR EACH ROW
