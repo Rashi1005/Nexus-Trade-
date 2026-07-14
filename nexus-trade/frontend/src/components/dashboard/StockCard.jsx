@@ -1,6 +1,6 @@
 import React from 'react'
 import { TrendingUp, TrendingDown } from 'lucide-react'
-import { formatCurrency, formatPercent, getChangeColor } from '../../utils/formatters'
+import { formatCurrency, getChangeColor } from '../../utils/formatters'
 import Button from '../common/Button'
 
 const StockCard = ({ 

@@ -30,7 +30,7 @@ const Trading = () => {
         setQuote(response.data)
         toast.success(`Found ${response.data.name}`)
       }
-    } catch (error) {
+    } catch {
       toast.error('Stock not found')
       setQuote(null)
     } finally {
