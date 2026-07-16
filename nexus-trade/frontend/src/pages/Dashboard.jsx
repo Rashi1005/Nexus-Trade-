@@ -33,7 +33,7 @@ const Dashboard = () => {
       if (stocksRes.success) {
         setPopularStocks(stocksRes.data.slice(0, 6))
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to load dashboard data')
     } finally {
       setLoading(false)

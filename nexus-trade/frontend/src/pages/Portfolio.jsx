@@ -20,7 +20,7 @@ const Portfolio = () => {
       if (response.success) {
         setPortfolio(response.data)
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to load portfolio')
     } finally {
       setLoading(false)
