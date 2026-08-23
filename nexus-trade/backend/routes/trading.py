@@ -23,7 +23,7 @@ def resolve_commission_or_error():
         return None, (
             jsonify({
                 'success': False,
-                'message': str(exc)
+                'message': 'Trading configuration is invalid. Please contact support.'
             }),
             500
         )
