@@ -246,14 +246,14 @@ def update_holding(user_id, symbol, quantity, avg_price, total_invested):
         # Update existing holding
         query = """
             UPDATE holdings 
-            SET quantity = %s, average_price = %s, total_invested = %s, updated_at = NOW()
+            SET quantity = %s, average_cost = %s, total_invested = %s, last_updated_at = NOW()
             WHERE user_id = %s AND symbol = %s
         """
         return execute_query(query, (quantity, avg_price, total_invested, user_id, symbol), commit=True)
     else:
         # Create new holding
         query = """
-            INSERT INTO holdings (user_id, symbol, quantity, average_price, total_invested)
+            INSERT INTO holdings (user_id, symbol, quantity, average_cost, total_invested)
             VALUES (%s, %s, %s, %s, %s)
         """
         return execute_query(query, (user_id, symbol, quantity, avg_price, total_invested), commit=True)
@@ -332,9 +332,15 @@ def remove_from_watchlist(watchlist_id, symbol):
 def get_portfolio_value_history(user_id, days=30):
     """Get portfolio value history"""
     query = """
-        SELECT * FROM portfolio_history
-        WHERE user_id = %s AND recorded_at >= DATE_SUB(NOW(), INTERVAL %s DAY)
-        ORDER BY recorded_at ASC
+        SELECT 
+            user_id,
+            snapshot_date AS recorded_at,
+            total_value,
+            cash_balance,
+            holdings_value
+        FROM portfolio_snapshots
+        WHERE user_id = %s AND snapshot_date >= DATE_SUB(CURDATE(), INTERVAL %s DAY)
+        ORDER BY snapshot_date ASC
     """
     return execute_query(query, (user_id, days), fetch_all=True)
 
@@ -342,7 +348,12 @@ def get_portfolio_value_history(user_id, days=30):
 def save_portfolio_snapshot(user_id, total_value, cash_balance, holdings_value):
     """Save current portfolio snapshot"""
     query = """
-        INSERT INTO portfolio_history (user_id, total_value, cash_balance, holdings_value)
-        VALUES (%s, %s, %s, %s)
+        INSERT INTO portfolio_snapshots (user_id, snapshot_date, total_value, cash_balance, holdings_value)
+        VALUES (%s, CURDATE(), %s, %s, %s)
+        ON DUPLICATE KEY UPDATE
+            total_value = VALUES(total_value),
+            cash_balance = VALUES(cash_balance),
+            holdings_value = VALUES(holdings_value),
+            created_at = CURRENT_TIMESTAMP
     """
     return execute_query(query, (user_id, total_value, cash_balance, holdings_value), commit=True)

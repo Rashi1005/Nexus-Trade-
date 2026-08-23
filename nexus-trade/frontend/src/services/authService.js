@@ -10,10 +10,11 @@ export const authService = {
     })
     
     if (response.data.success) {
-      const { access_token, user } = response.data.data
-      localStorage.setItem('token', access_token)
+      const { access_token, token, user } = response.data.data
+      const authToken = access_token || token
+      localStorage.setItem('token', authToken)
       localStorage.setItem('user', JSON.stringify(user))
-      return { success: true, user, token: access_token }
+      return { success: true, user, token: authToken }
     }
     
     return { success: false, message: response.data.message }
@@ -27,10 +28,11 @@ export const authService = {
     })
     
     if (response.data.success) {
-      const { access_token, user } = response.data.data
-      localStorage.setItem('token', access_token)
+      const { access_token, token, user } = response.data.data
+      const authToken = access_token || token
+      localStorage.setItem('token', authToken)
       localStorage.setItem('user', JSON.stringify(user))
-      return { success: true, user, token: access_token }
+      return { success: true, user, token: authToken }
     }
     
     return { success: false, message: response.data.message }
@@ -45,6 +47,7 @@ export const authService = {
     } finally {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
+      localStorage.removeItem('auth-storage')
     }
   },
 

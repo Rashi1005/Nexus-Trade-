@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
-import { useAuthStore } from './store/authStore'
+import ProtectedRoute from './components/routes/ProtectedRoute'
+import PublicRoute from './components/routes/PublicRoute'
 
 // Pages
 import Landing from './pages/Landing'
@@ -9,12 +10,6 @@ import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
 import Trading from './pages/Trading'
 import Portfolio from './pages/Portfolio'
-
-// Protected Route Component
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated } = useAuthStore()
-  return isAuthenticated ? children : <Navigate to="/login" />
-}
 
 function App() {
   return (
@@ -47,8 +42,8 @@ function App() {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+        <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
         
         {/* Protected Routes */}
         <Route 
