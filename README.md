@@ -4,7 +4,7 @@
 - Python 3.12+
 - Node.js 20+
 - MySQL 8+
-- Alpha Vantage API key
+- Alpha Vantage API key (optional, app falls back to mock/Yahoo data when omitted)
 
 ## 1) Backend setup (`nexus-trade/backend`)
 ```bash
@@ -24,6 +24,7 @@ DB_NAME=nexus_trade
 ALPHA_VANTAGE_API_KEY=your_alpha_vantage_key
 COMMISSION_RATE=0.99
 INITIAL_BALANCE=10000.00
+ENABLE_ANALYTICS=false
 ```
 
 Initialize database:
@@ -42,9 +43,15 @@ Backend runs on `http://localhost:5000`.
 ```bash
 cd nexus-trade/frontend
 npm ci
+cp .env.example .env
 npm run dev
 ```
-Frontend runs on `http://localhost:5173` and talks to backend at `http://localhost:5000/api`.
+Frontend runs on `http://localhost:5173` and talks to backend using `VITE_API_BASE_URL` from `.env` (default: `http://localhost:5000/api`).
+
+Create `nexus-trade/frontend/.env.example`:
+```env
+VITE_API_BASE_URL=http://localhost:5000/api
+```
 
 ## Validation commands
 ```bash

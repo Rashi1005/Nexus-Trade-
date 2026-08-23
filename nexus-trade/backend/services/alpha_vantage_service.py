@@ -18,14 +18,13 @@ logger = logging.getLogger(__name__)
 
 class AlphaVantageService:
     def __init__(self):
-        # ❗ NO demo fallback — fail loudly if missing
         self.api_key = os.getenv('ALPHA_VANTAGE_API_KEY')
         self.base_url = 'https://www.alphavantage.co/query'
         self.cache = {}
         self.cache_duration = 60  # seconds
-
-        if not self.api_key:
-            raise RuntimeError("ALPHA_VANTAGE_API_KEY not found in environment")
+        self.enabled = bool(self.api_key)
+        if not self.enabled:
+            logger.warning("ALPHA_VANTAGE_API_KEY not found; Alpha Vantage disabled")
 
     # =========================
     # Cache helpers
@@ -56,6 +55,9 @@ class AlphaVantageService:
     # =========================
     def get_stock_quote(self, symbol):
         """Get real-time stock quote"""
+        if not self.enabled:
+            return None
+
         cache_key = f"quote_{symbol}"
 
         cached = self._get_from_cache(cache_key)
@@ -109,6 +111,9 @@ class AlphaVantageService:
     # Historical data
     # =========================
     def get_historical_data(self, symbol, period='daily', output_size='compact'):
+        if not self.enabled:
+            return []
+
         cache_key = f"historical_{symbol}_{period}_{output_size}"
 
         cached = self._get_from_cache(cache_key)
@@ -155,6 +160,9 @@ class AlphaVantageService:
     # Search stocks
     # =========================
     def search_stocks(self, query):
+        if not self.enabled:
+            return []
+
         try:
             params = {
                 'function': 'SYMBOL_SEARCH',

@@ -14,6 +14,20 @@ logger = logging.getLogger(__name__)
 
 trading_bp = Blueprint('trading', __name__)
 
+def resolve_commission_or_error():
+    """Resolve commission and return (commission, error_response)."""
+    try:
+        return Config.resolve_commission_rate(), None
+    except ValueError as exc:
+        logger.error(f"Commission configuration error: {exc}")
+        return None, (
+            jsonify({
+                'success': False,
+                'message': 'Trading configuration is invalid. Please contact support.'
+            }),
+            500
+        )
+
 
 @trading_bp.route('/buy', methods=['POST'])
 @jwt_required()
@@ -76,7 +90,9 @@ def buy_stock():
             }), 404
         
         # Calculate total cost
-        commission = Config.DEFAULT_COMMISSION
+        commission, config_error = resolve_commission_or_error()
+        if config_error:
+            return config_error
         subtotal = current_price * quantity
         total_cost = subtotal + commission
         
@@ -221,7 +237,9 @@ def sell_stock():
         current_price = stock_data['current_price']
         
         # Calculate proceeds
-        commission = Config.DEFAULT_COMMISSION
+        commission, config_error = resolve_commission_or_error()
+        if config_error:
+            return config_error
         subtotal = current_price * quantity
         total_proceeds = subtotal - commission
         
@@ -481,7 +499,9 @@ def quote_and_validate():
             }), 404
         
         current_price = stock_data['current_price']
-        commission = Config.DEFAULT_COMMISSION
+        commission, config_error = resolve_commission_or_error()
+        if config_error:
+            return config_error
         
         # Get user data
         user = get_user_by_id(user_id)

@@ -29,11 +29,12 @@ class Config:
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
     
     # Alpha Vantage API Configuration
-    ALPHA_VANTAGE_API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY', 'demo')
+    ALPHA_VANTAGE_API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY')
     
     # Application Settings
-    COMMISSION_RATE = float(os.getenv('COMMISSION_RATE', '0.99'))
+    COMMISSION_RATE = os.getenv('COMMISSION_RATE', '0.99')
     INITIAL_BALANCE = float(os.getenv('INITIAL_BALANCE', '10000.00'))
+    ENABLE_ANALYTICS = os.getenv('ENABLE_ANALYTICS', 'false').strip().lower() in {'1', 'true', 'yes', 'on'}
     
     # CORS Configuration
     CORS_ORIGINS = ['http://localhost:5173', 'http://localhost:3000']
@@ -43,7 +44,7 @@ class Config:
         """Validate required configuration"""
         required_vars = [
             'DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME',
-            'SECRET_KEY', 'JWT_SECRET_KEY', 'ALPHA_VANTAGE_API_KEY'
+            'SECRET_KEY', 'JWT_SECRET_KEY'
         ]
         
         missing = []
@@ -67,3 +68,16 @@ class Config:
             'database': Config.DB_NAME,
             'cursorclass': 'DictCursor'
         }
+
+    @staticmethod
+    def resolve_commission_rate():
+        """Resolve commission rate from config with validation"""
+        try:
+            commission_rate = float(Config.COMMISSION_RATE)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("Invalid COMMISSION_RATE: must be a numeric value") from exc
+
+        if commission_rate < 0:
+            raise ValueError("Invalid COMMISSION_RATE: must be greater than or equal to 0")
+
+        return commission_rate
