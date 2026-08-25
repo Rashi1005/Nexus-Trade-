@@ -18,7 +18,7 @@ portfolio_bp = Blueprint('portfolio', __name__)
 def get_portfolio():
     """Get complete portfolio with real-time valuations"""
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # identity stored as string, convert to int
         
         # Get user data
         user = get_user_by_id(user_id)
@@ -125,7 +125,7 @@ def get_portfolio():
 def get_portfolio_history():
     """Get portfolio value history"""
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # identity stored as string, convert to int
         period = request.args.get('period', '1M')  # 1W, 1M, 3M, 1Y
         
         # Get snapshots from database
@@ -180,7 +180,7 @@ def get_portfolio_history():
 def get_performance_metrics():
     """Get portfolio performance metrics"""
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # identity stored as string, convert to int
         
         # Get all transactions
         transactions_query = """
@@ -253,7 +253,7 @@ def get_performance_metrics():
 def get_diversity_score():
     """Calculate portfolio diversity score"""
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # identity stored as string, convert to int
         
         # Get holdings with sectors
         holdings_query = """

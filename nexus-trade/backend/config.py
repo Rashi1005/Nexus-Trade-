@@ -32,7 +32,7 @@ class Config:
     ALPHA_VANTAGE_API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY', 'demo')
     
     # Application Settings
-    COMMISSION_RATE = float(os.getenv('COMMISSION_RATE', '0.99'))
+    DEFAULT_COMMISSION = float(os.getenv('COMMISSION_RATE', '0.99'))
     INITIAL_BALANCE = float(os.getenv('INITIAL_BALANCE', '10000.00'))
     
     # CORS Configuration

@@ -1,178 +1,144 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Mail, Lock, User, TrendingUp } from 'lucide-react'
+import { Mail, Lock, User, TrendingUp, CheckCircle } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { useAuthStore } from '../store/authStore'
-import Button from '../components/common/Button'
-import Input from '../components/common/Input'
+import ParticleBackground from '../components/common/ParticleBackground'
 import toast from 'react-hot-toast'
+
+const getStrength = pw => {
+  let s = 0
+  if (pw.length >= 8)             s++
+  if (/[A-Z]/.test(pw))           s++
+  if (/[0-9]/.test(pw))           s++
+  if (/[^A-Za-z0-9]/.test(pw))   s++
+  return s
+}
+const STR_COLORS = ['','#FB7185','#F0B429','#22D3EE','#34D399']
+const STR_LABELS = ['','Weak','Fair','Good','Strong']
 
 const Signup = () => {
   const navigate = useNavigate()
   const { signup, loading } = useAuthStore()
-  
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
-  })
-  
-  const [errors, setErrors] = useState({})
-  
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
-    // Clear error when user types
-    if (errors[e.target.name]) {
-      setErrors({ ...errors, [e.target.name]: '' })
-    }
-  }
-  
-  const validateForm = () => {
-    const newErrors = {}
-    
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Full name is required'
-    }
-    
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required'
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid'
-    }
-    
-    if (!formData.password) {
-      newErrors.password = 'Password is required'
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters'
-    }
-    
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match'
-    }
-    
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-  
-  const handleSubmit = async (e) => {
+  const [form, setForm] = useState({ fullName:'', email:'', password:'' })
+  const str = getStrength(form.password)
+
+  const onChange = e => setForm({ ...form, [e.target.name]: e.target.value })
+
+  const onSubmit = async e => {
     e.preventDefault()
-    
-    if (!validateForm()) {
-      return
-    }
-    
-    const result = await signup(
-      formData.email, 
-      formData.password, 
-      formData.fullName
-    )
-    
-    if (result.success) {
-      toast.success('Account created successfully!')
-      navigate('/dashboard')
-    } else {
-      toast.error(result.message || 'Signup failed')
-    }
+    if (form.password.length < 6) { toast.error('Password must be at least 6 characters'); return }
+    const r = await signup(form.email, form.password, form.fullName)
+    if (r.success) { toast.success('Account created! $10,000 added 💰'); navigate('/dashboard') }
+    else toast.error(r.message || 'Signup failed')
   }
-  
+
+  const inputStyle = { paddingLeft: 40 }
+  const iconStyle  = { position:'absolute', left:14, top:'50%', transform:'translateY(-50%)' }
+  const labelStyle = { display:'block', fontSize:13, fontWeight:600, color:'#94A3B8', marginBottom:8 }
+  const fieldStyle = { marginBottom:16 }
+
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <TrendingUp className="w-12 h-12 text-primary" />
-            <h1 className="text-3xl font-orbitron font-bold gradient-text">
-              NEXUS TRADE
-            </h1>
-          </div>
-          <p className="text-gray-400">Create your account</p>
+    <div style={{ minHeight:'100vh', background:'#080D1A', display:'flex', alignItems:'center', justifyContent:'center', padding:'24px 16px', position:'relative', overflow:'hidden' }}>
+      <ParticleBackground />
+
+      <div className="orb orb-indigo" style={{ width:400, height:400, top:-100, right:-80, position:'absolute' }} />
+      <div className="orb orb-gold"   style={{ width:360, height:360, bottom:-60, left:-80, position:'absolute' }} />
+      <div className="bg-grid" style={{ position:'absolute', inset:0, opacity:0.45, pointerEvents:'none' }} />
+
+      <motion.div
+        initial={{ opacity:0, scale:0.93, y:28 }}
+        animate={{ opacity:1, scale:1, y:0 }}
+        transition={{ duration:0.55, ease:[0.22,1,0.36,1] }}
+        style={{ width:'100%', maxWidth:440, position:'relative', zIndex:10 }}
+      >
+        {/* $10K badge */}
+        <div style={{ textAlign:'center', marginBottom:16 }}>
+          <span style={{
+            display:'inline-flex', alignItems:'center', gap:8, padding:'7px 18px',
+            borderRadius:99, fontSize:13, fontWeight:600,
+            background:'rgba(52,211,153,0.1)', border:'1px solid rgba(52,211,153,0.25)', color:'#34D399',
+          }}>
+            <CheckCircle size={14} /> Start with $10,000 virtual cash — free forever
+          </span>
         </div>
-        
-        {/* Signup Form */}
-        <div className="glass-card p-8">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              label="Full Name"
-              type="text"
-              name="fullName"
-              value={formData.fullName}
-              onChange={handleChange}
-              placeholder="John Doe"
-              icon={<User className="w-5 h-5" />}
-              error={errors.fullName}
-              required
-            />
-            
-            <Input
-              label="Email"
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="your@email.com"
-              icon={<Mail className="w-5 h-5" />}
-              error={errors.email}
-              required
-            />
-            
-            <Input
-              label="Password"
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="••••••••"
-              icon={<Lock className="w-5 h-5" />}
-              error={errors.password}
-              required
-            />
-            
-            <Input
-              label="Confirm Password"
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="••••••••"
-              icon={<Lock className="w-5 h-5" />}
-              error={errors.confirmPassword}
-              required
-            />
-            
-            <div className="pt-2">
-              <Button
-                type="submit"
-                fullWidth
-                loading={loading}
-                disabled={loading}
-              >
-                Create Account
-              </Button>
+
+        <div style={{
+          background:'rgba(13,20,40,0.9)',
+          backdropFilter:'blur(40px)',
+          WebkitBackdropFilter:'blur(40px)',
+          border:'1px solid rgba(255,255,255,0.1)',
+          borderRadius:24,
+          padding:'clamp(28px,5vw,44px)',
+          boxShadow:'0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(139,111,255,0.1)',
+        }}>
+
+          {/* Logo */}
+          <div style={{ textAlign:'center', marginBottom:28 }}>
+            <div className="animate-float" style={{ display:'inline-flex', alignItems:'center', justifyContent:'center', width:52, height:52, borderRadius:14, background:'rgba(139,111,255,0.15)', border:'1px solid rgba(139,111,255,0.3)', marginBottom:14 }}>
+              <TrendingUp size={24} color="#8B6FFF" strokeWidth={2.5} />
             </div>
+            <div className="font-orbitron" style={{ fontSize:19, fontWeight:700, background:'linear-gradient(90deg,#22D3EE,#8B6FFF)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', marginBottom:6 }}>
+              NEXUS TRADE
+            </div>
+            <p style={{ color:'#94A3B8', fontSize:14 }}>Create your trading account</p>
+          </div>
+
+          <form onSubmit={onSubmit}>
+            {/* Full Name */}
+            <div style={fieldStyle}>
+              <label style={labelStyle}>Full Name</label>
+              <div style={{ position:'relative' }}>
+                <User size={15} color="#475569" style={iconStyle} />
+                <input type="text" name="fullName" value={form.fullName} onChange={onChange}
+                  placeholder="John Doe" required className="input-neon" style={inputStyle} />
+              </div>
+            </div>
+
+            {/* Email */}
+            <div style={fieldStyle}>
+              <label style={labelStyle}>Email Address</label>
+              <div style={{ position:'relative' }}>
+                <Mail size={15} color="#475569" style={iconStyle} />
+                <input type="email" name="email" value={form.email} onChange={onChange}
+                  placeholder="your@email.com" required className="input-neon" style={inputStyle} />
+              </div>
+            </div>
+
+            {/* Password + strength */}
+            <div style={{ marginBottom:24 }}>
+              <label style={labelStyle}>Password</label>
+              <div style={{ position:'relative' }}>
+                <Lock size={15} color="#475569" style={iconStyle} />
+                <input type="password" name="password" value={form.password} onChange={onChange}
+                  placeholder="Min. 6 characters" required className="input-neon" style={inputStyle} />
+              </div>
+              {form.password.length > 0 && (
+                <motion.div initial={{ opacity:0, y:-4 }} animate={{ opacity:1, y:0 }} style={{ marginTop:10 }}>
+                  <div style={{ display:'flex', gap:6, marginBottom:6 }}>
+                    {[1,2,3,4].map(i=>(
+                      <div key={i} style={{ flex:1, height:3, borderRadius:99, transition:'background 0.3s', background: i <= str ? STR_COLORS[str] : 'rgba(255,255,255,0.08)' }} />
+                    ))}
+                  </div>
+                  <p style={{ fontSize:12, color: STR_COLORS[str], fontWeight:600 }}>{STR_LABELS[str]}</p>
+                </motion.div>
+              )}
+            </div>
+
+            <button type="submit" className="btn btn-primary" disabled={loading}
+              style={{ width:'100%', justifyContent:'center', padding:'14px', fontSize:16 }}>
+              {loading
+                ? <span style={{ width:20, height:20, border:'2px solid rgba(255,255,255,0.3)', borderTopColor:'#fff', borderRadius:'50%', display:'inline-block' }} className="animate-spin-slow" />
+                : 'Create Free Account'}
+            </button>
           </form>
-          
-          <div className="mt-6 p-4 bg-success/10 border border-success/20 rounded-lg">
-            <p className="text-sm text-gray-300">
-              ✓ Start with $10,000 virtual balance<br />
-              ✓ Trade with real market prices<br />
-              ✓ No credit card required
-            </p>
-          </div>
-          
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-400">
-              Already have an account?{' '}
-              <Link to="/login" className="text-primary hover:underline">
-                Sign in
-              </Link>
-            </p>
-          </div>
+
+          <p style={{ textAlign:'center', marginTop:22, fontSize:14, color:'#64748B' }}>
+            Already have an account?{' '}
+            <Link to="/login" style={{ color:'#8B6FFF', fontWeight:600, textDecoration:'none' }}>Sign in</Link>
+          </p>
         </div>
-      </div>
+      </motion.div>
     </div>
   )
 }

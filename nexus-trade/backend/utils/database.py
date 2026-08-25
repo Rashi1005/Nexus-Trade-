@@ -332,9 +332,9 @@ def remove_from_watchlist(watchlist_id, symbol):
 def get_portfolio_value_history(user_id, days=30):
     """Get portfolio value history"""
     query = """
-        SELECT * FROM portfolio_history
-        WHERE user_id = %s AND recorded_at >= DATE_SUB(NOW(), INTERVAL %s DAY)
-        ORDER BY recorded_at ASC
+        SELECT * FROM portfolio_snapshots
+        WHERE user_id = %s AND snapshot_date >= DATE_SUB(CURDATE(), INTERVAL %s DAY)
+        ORDER BY snapshot_date ASC
     """
     return execute_query(query, (user_id, days), fetch_all=True)
 

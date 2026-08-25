@@ -27,7 +27,7 @@ def buy_stock():
         - order_type: string (optional) - 'market' (default), 'limit'
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # identity stored as string, convert to int
         data = request.get_json()
         
         # Validate input
@@ -92,13 +92,14 @@ def buy_stock():
                 }
             }), 400
         
-        # Create order (will trigger automatic portfolio update)
+        # Create order with 'pending' status first, then update to 'filled'
+        # This is required so the AFTER UPDATE trigger fires to update holdings & balance
         order_query = """
             INSERT INTO orders (
                 user_id, symbol, order_type, side, quantity, 
                 filled_price, filled_quantity, status, commission, total_amount
             )
-            VALUES (%s, %s, 'market', 'buy', %s, %s, %s, 'filled', %s, %s)
+            VALUES (%s, %s, 'market', 'buy', %s, %s, %s, 'pending', %s, %s)
         """
         
         result = execute_query(
@@ -114,6 +115,14 @@ def buy_stock():
             }), 500
         
         order_id = result['last_id']
+
+        # Update to 'filled' — fires the AFTER UPDATE trigger
+        fill_query = """
+            UPDATE orders
+            SET status = 'filled', filled_at = NOW()
+            WHERE order_id = %s
+        """
+        execute_query(fill_query, (order_id,), commit=True)
         
         # Get updated user balance
         updated_user = get_user_by_id(user_id)
@@ -157,7 +166,7 @@ def sell_stock():
         - quantity: integer (required) - Number of shares
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # identity stored as string, convert to int
         data = request.get_json()
         
         # Validate input
@@ -225,14 +234,14 @@ def sell_stock():
         subtotal = current_price * quantity
         total_proceeds = subtotal - commission
         
-        # Create sell order (trigger will validate and update holdings)
+        # Create sell order with 'pending' status, then update to 'filled' for trigger
         try:
             order_query = """
                 INSERT INTO orders (
                     user_id, symbol, order_type, side, quantity,
                     filled_price, filled_quantity, status, commission, total_amount
                 )
-                VALUES (%s, %s, 'market', 'sell', %s, %s, %s, 'filled', %s, %s)
+                VALUES (%s, %s, 'market', 'sell', %s, %s, %s, 'pending', %s, %s)
             """
             
             result = execute_query(
@@ -248,6 +257,14 @@ def sell_stock():
                 }), 500
             
             order_id = result['last_id']
+
+            # Update to 'filled' — fires the AFTER UPDATE trigger
+            fill_query = """
+                UPDATE orders
+                SET status = 'filled', filled_at = NOW()
+                WHERE order_id = %s
+            """
+            execute_query(fill_query, (order_id,), commit=True)
             
             # Calculate profit/loss
             cost_basis = holding['average_cost'] * quantity
@@ -308,7 +325,7 @@ def get_orders():
         - status: string (optional) - Filter by status
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # identity stored as string, convert to int
         limit = request.args.get('limit', 50, type=int)
         status = request.args.get('status')
         
@@ -381,7 +398,7 @@ def get_transactions():
         - symbol: string (optional) - Filter by symbol
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # identity stored as string, convert to int
         limit = request.args.get('limit', 50, type=int)
         symbol = request.args.get('symbol', '').strip().upper()
         
@@ -451,7 +468,7 @@ def quote_and_validate():
         - side: string (required) - 'buy' or 'sell'
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # identity stored as string, convert to int
         data = request.get_json()
         
         symbol = data.get('symbol', '').strip().upper()

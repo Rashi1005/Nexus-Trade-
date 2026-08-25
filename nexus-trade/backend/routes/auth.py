@@ -76,9 +76,9 @@ def signup():
         # Get created user
         user = get_user_by_id(user_id)
         
-        # Create JWT tokens
-        access_token = create_access_token(identity=user_id)
-        refresh_token = create_refresh_token(identity=user_id)
+        # Create JWT tokens (identity must be a string in Flask-JWT-Extended 4.x)
+        access_token = create_access_token(identity=str(user_id))
+        refresh_token = create_refresh_token(identity=str(user_id))
         
         # Log successful signup
         logger.info(f"New user registered: {email}")
@@ -152,9 +152,9 @@ def login():
             commit=True
         )
         
-        # Create JWT tokens
-        access_token = create_access_token(identity=user['user_id'])
-        refresh_token = create_refresh_token(identity=user['user_id'])
+        # Create JWT tokens (identity must be a string in Flask-JWT-Extended 4.x)
+        access_token = create_access_token(identity=str(user['user_id']))
+        refresh_token = create_refresh_token(identity=str(user['user_id']))
         
         # Log successful login
         logger.info(f"User logged in: {email}")
@@ -188,7 +188,7 @@ def login():
 def get_current_user():
     """Get current user information"""
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # identity stored as string, convert back to int
         user = get_user_by_id(user_id)
         
         if not user:
@@ -226,7 +226,7 @@ def refresh():
     """Refresh access token"""
     try:
         user_id = get_jwt_identity()
-        access_token = create_access_token(identity=user_id)
+        access_token = create_access_token(identity=str(user_id))
         
         return jsonify({
             'success': True,

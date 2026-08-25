@@ -1,156 +1,227 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
-import { TrendingUp, Zap, Shield, BarChart3, ArrowRight, DollarSign, Activity } from 'lucide-react'
-import Button from '../components/common/Button'
+import { motion } from 'framer-motion'
+import { TrendingUp, Zap, Shield, BarChart3, ArrowRight, DollarSign, ChevronRight, Star } from 'lucide-react'
+import ParticleBackground from '../components/common/ParticleBackground'
 
-const Landing = () => {
-  const [stats] = useState({
-    users: '10,000+',
-    trades: '1M+',
-    value: '$500M+',
-  })
+/* ── Ticker data ── */
+const TICKERS = [
+  { sym:'AAPL',  chg:'+0.82%', up:true  }, { sym:'GOOGL', chg:'-0.34%', up:false },
+  { sym:'MSFT',  chg:'+1.20%', up:true  }, { sym:'TSLA',  chg:'-2.10%', up:false },
+  { sym:'AMZN',  chg:'+0.67%', up:true  }, { sym:'NVDA',  chg:'+3.40%', up:true  },
+  { sym:'META',  chg:'+1.80%', up:true  }, { sym:'NFLX',  chg:'-0.90%', up:false },
+]
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
-      {/* Animated Background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute w-96 h-96 -top-10 -left-10 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse"></div>
-        <div className="absolute w-96 h-96 top-1/2 right-0 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse delay-1000"></div>
-        <div className="absolute w-96 h-96 bottom-0 left-1/2 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse delay-2000"></div>
-      </div>
+/* ── Features ── */
+const FEATURES = [
+  {
+    icon: Zap, title: 'Real-Time Prices',
+    desc: 'Live data from NYSE & NASDAQ for 5,700+ stocks powered by Alpha Vantage.',
+    bg: 'linear-gradient(135deg,#8B6FFF,#6D4FE8)',
+    glow: 'rgba(139,111,255,0.2)',
+  },
+  {
+    icon: Shield, title: '100% Risk-Free',
+    desc: 'Start with $10,000 virtual cash. Learn trading strategies with zero financial risk.',
+    bg: 'linear-gradient(135deg,#F0B429,#F97316)',
+    glow: 'rgba(240,180,41,0.2)',
+  },
+  {
+    icon: BarChart3, title: 'Portfolio Analytics',
+    desc: 'Real-time P&L tracking, sector breakdown, and complete transaction history.',
+    bg: 'linear-gradient(135deg,#34D399,#22D3EE)',
+    glow: 'rgba(52,211,153,0.2)',
+  },
+]
 
-      {/* Content */}
-      <div className="relative z-10">
-        {/* Navbar */}
-        <nav className="container mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <TrendingUp className="w-10 h-10 text-cyan-400" />
-              <h1 className="text-3xl font-orbitron font-bold">
-                <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-                  NEXUS TRADE
-                </span>
-              </h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link to="/login">
-                <Button variant="secondary" className="px-6">
-                  Sign In
-                </Button>
-              </Link>
-              <Link to="/signup">
-                <Button className="px-6 glow">
-                  Get Started
-                </Button>
-              </Link>
-            </div>
+/* ── Steps ── */
+const STEPS = [
+  { n:'01', title:'Create Free Account', desc:'Sign up in 30 seconds. No credit card required, ever.' },
+  { n:'02', title:'Get $10,000 Cash',    desc:'Virtual funds appear in your account instantly.' },
+  { n:'03', title:'Trade Real Stocks',   desc:'Buy and sell 5,700+ stocks at live market prices.' },
+]
+
+const fadeUp = {
+  hidden: { opacity:0, y:36 },
+  show:   { opacity:1, y:0, transition:{ duration:0.6, ease:[0.22,1,0.36,1] } },
+}
+const stagger = { show:{ transition:{ staggerChildren:0.12 } } }
+
+const Landing = () => (
+  <div style={{ background:'#080D1A', minHeight:'100vh', position:'relative', overflowX:'hidden' }}>
+    <ParticleBackground />
+
+    {/* Ambient orbs */}
+    <div className="orb orb-indigo" style={{ width:500, height:500, top:-120, left:-100, position:'absolute' }} />
+    <div className="orb orb-gold"   style={{ width:400, height:400, top:80,   right:-80, position:'absolute' }} />
+    <div className="orb orb-teal"   style={{ width:350, height:350, bottom:100, left:'35%', position:'absolute' }} />
+    <div className="bg-grid" style={{ position:'absolute', inset:0, opacity:0.5, pointerEvents:'none' }} />
+
+    <div style={{ position:'relative', zIndex:10 }}>
+
+      {/* ── NAVBAR ── */}
+      <nav style={{ borderBottom:'1px solid rgba(255,255,255,0.06)', position:'sticky', top:0, zIndex:50, background:'rgba(8,13,26,0.85)', backdropFilter:'blur(20px)' }}>
+        <div className="content-wrap" style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'18px 24px' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+            <TrendingUp size={26} color="#8B6FFF" strokeWidth={2.5} />
+            <span className="font-orbitron" style={{ fontSize:18, fontWeight:700, background:'linear-gradient(90deg,#22D3EE,#8B6FFF)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>
+              NEXUS TRADE
+            </span>
           </div>
-        </nav>
-
-        {/* Hero Section */}
-        <div className="container mx-auto px-6 py-20">
-          <div className="text-center max-w-5xl mx-auto mb-20">
-            <h2 className="text-6xl md:text-7xl font-bold text-white mb-8 animate-fade-in">
-              Master Trading
-              <br />
-              <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-                Without The Risk
-              </span>
-            </h2>
-            <p className="text-xl md:text-2xl text-gray-300 mb-12 animate-fade-in delay-100">
-              Practice trading 5,700+ real stocks with $10,000 virtual cash.<br />
-              Real-time data. Zero financial risk. 100% free forever.
-            </p>
-            <div className="flex items-center justify-center space-x-6 animate-fade-in delay-200">
-              <Link to="/signup">
-                <Button size="lg" className="glow text-lg group">
-                  <span>Start Trading Free</span>
-                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
-              <Link to="/login">
-                <Button size="lg" variant="secondary" className="text-lg">
-                  View Demo
-                </Button>
-              </Link>
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-8 mt-20 max-w-3xl mx-auto animate-fade-in delay-300">
-              <div className="text-center glass-card p-6">
-                <div className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                  {stats.users}
-                </div>
-                <div className="text-gray-400 mt-2">Active Traders</div>
-              </div>
-              <div className="text-center glass-card p-6">
-                <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  {stats.trades}
-                </div>
-                <div className="text-gray-400 mt-2">Trades Executed</div>
-              </div>
-              <div className="text-center glass-card p-6">
-                <div className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                  {stats.value}
-                </div>
-                <div className="text-gray-400 mt-2">Portfolio Value</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Features */}
-          <div className="grid md:grid-cols-3 gap-8 mt-32">
-            <div className="glass-card p-8 hover:border-cyan-500 transition-all duration-300 animate-fade-in group">
-              <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Zap className="w-7 h-7 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-3">Real-Time Data</h3>
-              <p className="text-gray-400 text-lg">
-                Live prices from NYSE & NASDAQ. Trade 5,700+ stocks with actual market data powered by Alpha Vantage.
-              </p>
-            </div>
-
-            <div className="glass-card p-8 hover:border-purple-500 transition-all duration-300 animate-fade-in delay-100 group">
-              <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Shield className="w-7 h-7 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-3">100% Risk-Free</h3>
-              <p className="text-gray-400 text-lg">
-                Start with $10,000 virtual cash. Learn and practice trading strategies without losing real money.
-              </p>
-            </div>
-
-            <div className="glass-card p-8 hover:border-blue-500 transition-all duration-300 animate-fade-in delay-200 group">
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <BarChart3 className="w-7 h-7 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-3">Track Performance</h3>
-              <p className="text-gray-400 text-lg">
-                Real-time portfolio tracking, detailed profit/loss calculations, and complete transaction history.
-              </p>
-            </div>
-          </div>
-
-          {/* CTA Section */}
-          <div className="mt-32 text-center glass-card p-16 animate-fade-in">
-            <Activity className="w-16 h-16 text-cyan-400 mx-auto mb-6" />
-            <h2 className="text-4xl font-bold text-white mb-4">
-              Ready to Start Your Trading Journey?
-            </h2>
-            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-              Join thousands of traders practicing with Nexus Trade. No credit card required.
-            </p>
+          <div style={{ display:'flex', gap:12 }}>
+            <Link to="/login">
+              <button className="btn btn-ghost" style={{ padding:'9px 20px', fontSize:14 }}>Sign In</button>
+            </Link>
             <Link to="/signup">
-              <Button size="lg" className="glow text-lg">
-                <DollarSign className="w-5 h-5 mr-2" />
-                Create Free Account
-              </Button>
+              <button className="btn btn-primary animate-pulse-glow" style={{ padding:'9px 20px', fontSize:14 }}>Get Started</button>
             </Link>
           </div>
         </div>
+      </nav>
+
+      {/* ── HERO ── */}
+      <section style={{ maxWidth:1280, margin:'0 auto', padding:'80px 24px 60px', textAlign:'center' }}>
+        <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.5 }}>
+          <div style={{
+            display:'inline-flex', alignItems:'center', gap:8, padding:'6px 16px',
+            borderRadius:99, marginBottom:32, fontSize:13, fontWeight:600,
+            background:'rgba(139,111,255,0.1)', border:'1px solid rgba(139,111,255,0.25)', color:'#c4b5fd',
+          }}>
+            <span style={{ width:7, height:7, borderRadius:'50%', background:'#8B6FFF', animation:'pulse 1.5s infinite' }} />
+            Live Market Data · Zero Risk
+          </div>
+        </motion.div>
+
+        <motion.h1
+          initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.1, duration:0.7 }}
+          style={{ fontSize:'clamp(44px,8vw,96px)', fontWeight:800, lineHeight:1.05, letterSpacing:'-0.03em', marginBottom:24 }}>
+          <span style={{ color:'#E2E8F0' }}>TRADE THE</span><br />
+          <span style={{ background:'linear-gradient(135deg,#8B6FFF 0%,#F0B429 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>
+            FUTURE
+          </span>
+        </motion.h1>
+
+        <motion.p
+          initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.2, duration:0.6 }}
+          style={{ fontSize:'clamp(15px,2vw,19px)', color:'#94A3B8', maxWidth:520, margin:'0 auto 36px', lineHeight:1.7 }}>
+          Practice with <span style={{ color:'#F0B429', fontWeight:600 }}>$10,000</span> virtual cash.
+          Real market data. Zero financial risk.
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.3 }}
+          style={{ display:'flex', gap:14, justifyContent:'center', flexWrap:'wrap', marginBottom:64 }}>
+          <Link to="/signup">
+            <button className="btn btn-primary animate-pulse-glow" style={{ fontSize:16, padding:'14px 32px' }}>
+              Start Trading Free <ArrowRight size={18} />
+            </button>
+          </Link>
+          <Link to="/login">
+            <button className="btn btn-ghost" style={{ fontSize:16, padding:'14px 32px' }}>
+              Sign In <ChevronRight size={18} />
+            </button>
+          </Link>
+        </motion.div>
+
+        {/* Stats row */}
+        <motion.div
+          initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.45 }}
+          style={{ display:'flex', justifyContent:'center', gap:'clamp(24px,6vw,64px)', flexWrap:'wrap' }}>
+          {[['10K+','Active Traders'],['1M+','Trades Executed'],['$500M+','Volume Traded']].map(([v,l])=>(
+            <div key={l} style={{ textAlign:'center' }}>
+              <div className="font-orbitron" style={{ fontSize:'clamp(22px,4vw,32px)', fontWeight:700, background:'linear-gradient(90deg,#8B6FFF,#F0B429)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>{v}</div>
+              <div style={{ fontSize:13, color:'#475569', marginTop:4 }}>{l}</div>
+            </div>
+          ))}
+        </motion.div>
+      </section>
+
+      {/* ── TICKER TAPE ── */}
+      <div style={{ background:'rgba(255,255,255,0.025)', borderTop:'1px solid rgba(255,255,255,0.06)', borderBottom:'1px solid rgba(255,255,255,0.06)', padding:'10px 0', overflow:'hidden' }}>
+        <div className="ticker-inner">
+          {[...TICKERS,...TICKERS].map((t,i)=>(
+            <span key={i} className="font-mono-custom" style={{ display:'inline-flex', alignItems:'center', gap:6, margin:'0 28px', fontSize:13, flexShrink:0 }}>
+              <span style={{ color:'#E2E8F0', fontWeight:600 }}>{t.sym}</span>
+              <span style={{ color: t.up ? '#34D399':'#FB7185', fontWeight:700 }}>{t.chg}</span>
+              <span style={{ color:'#334155', fontSize:11 }}>|</span>
+            </span>
+          ))}
+        </div>
       </div>
+
+      {/* ── FEATURES ── */}
+      <section style={{ maxWidth:1280, margin:'0 auto', padding:'80px 24px' }}>
+        <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once:true }} style={{ textAlign:'center', marginBottom:52 }}>
+          <h2 style={{ fontSize:'clamp(28px,5vw,48px)', fontWeight:700, color:'#E2E8F0', marginBottom:14 }}>
+            Everything you need to{' '}
+            <span style={{ background:'linear-gradient(90deg,#8B6FFF,#F0B429)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>trade smart</span>
+          </h2>
+          <p style={{ color:'#94A3B8', fontSize:17, maxWidth:500, margin:'0 auto' }}>Professional-grade tools without the financial risk</p>
+        </motion.div>
+
+        <motion.div className="features-grid" variants={stagger} initial="hidden" whileInView="show" viewport={{ once:true }}>
+          {FEATURES.map(({ icon:Icon, title, desc, bg, glow })=>(
+            <motion.div key={title} variants={fadeUp} className="feature-card">
+              {/* ── icon ── must have explicit dimensions via style ── */}
+              <div className="feature-icon" style={{ background: bg, boxShadow:`0 8px 24px ${glow}` }}>
+                <Icon size={24} color="#fff" strokeWidth={2} />
+              </div>
+              <h3 style={{ fontSize:20, fontWeight:700, color:'#E2E8F0', marginBottom:10 }}>{title}</h3>
+              <p style={{ color:'#94A3B8', lineHeight:1.65, fontSize:15 }}>{desc}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
+
+      {/* ── HOW IT WORKS ── */}
+      <section style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px 80px' }}>
+        <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once:true }} style={{ textAlign:'center', marginBottom:52 }}>
+          <h2 style={{ fontSize:'clamp(28px,5vw,48px)', fontWeight:700, color:'#E2E8F0', marginBottom:14 }}>
+            Up and running in{' '}
+            <span style={{ background:'linear-gradient(90deg,#34D399,#22D3EE)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>60 seconds</span>
+          </h2>
+        </motion.div>
+
+        <motion.div className="steps-grid" variants={stagger} initial="hidden" whileInView="show" viewport={{ once:true }}>
+          {STEPS.map(({ n, title, desc })=>(
+            <motion.div key={n} variants={fadeUp} className="step-card">
+              <div className="step-num">{n}</div>
+              <h3 style={{ fontSize:18, fontWeight:700, color:'#E2E8F0', marginBottom:10 }}>{title}</h3>
+              <p style={{ color:'#94A3B8', lineHeight:1.65, fontSize:14 }}>{desc}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
+
+      {/* ── CTA ── */}
+      <section style={{ maxWidth:900, margin:'0 auto', padding:'0 24px 100px' }}>
+        <motion.div
+          variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once:true }}
+          style={{
+            background:'rgba(13,20,40,0.8)', backdropFilter:'blur(24px)',
+            border:'1px solid rgba(139,111,255,0.2)', borderRadius:24,
+            padding:'clamp(40px,6vw,72px) clamp(24px,5vw,64px)',
+            textAlign:'center',
+            boxShadow:'0 0 80px rgba(139,111,255,0.06)',
+          }}>
+          <DollarSign size={52} color="#F0B429" style={{ margin:'0 auto 20px', display:'block' }} className="animate-float" />
+          <h2 style={{ fontSize:'clamp(26px,4vw,42px)', fontWeight:700, color:'#E2E8F0', marginBottom:14 }}>
+            Ready to start your{' '}
+            <span style={{ background:'linear-gradient(90deg,#8B6FFF,#F0B429)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>trading journey?</span>
+          </h2>
+          <p style={{ color:'#94A3B8', fontSize:16, marginBottom:36, maxWidth:440, margin:'0 auto 36px' }}>
+            Join 10,000+ traders. Free forever. No credit card needed.
+          </p>
+          <Link to="/signup">
+            <button className="btn btn-primary animate-pulse-glow" style={{ fontSize:17, padding:'15px 40px' }}>
+              Create Free Account <ArrowRight size={18} />
+            </button>
+          </Link>
+        </motion.div>
+      </section>
+
     </div>
-  )
-}
+  </div>
+)
 
 export default Landing

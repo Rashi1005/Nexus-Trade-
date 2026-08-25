@@ -42,8 +42,8 @@ export const useAuthStore = create(
           const response = await api.post('/auth/login', { email, password })
           
           if (response.data.success) {
-            const { user, token } = response.data.data
-            get().setAuth(user, token)
+            const { user, access_token } = response.data.data
+            get().setAuth(user, access_token)
             set({ loading: false })
             return { success: true }
           } else {
@@ -68,8 +68,8 @@ export const useAuthStore = create(
           })
           
           if (response.data.success) {
-            const { user, token } = response.data.data
-            get().setAuth(user, token)
+            const { user, access_token } = response.data.data
+            get().setAuth(user, access_token)
             set({ loading: false })
             return { success: true }
           } else {

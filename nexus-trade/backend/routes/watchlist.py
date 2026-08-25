@@ -17,7 +17,7 @@ watchlist_bp = Blueprint('watchlist', __name__)
 def get_watchlists():
     """Get all watchlists for current user"""
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # identity stored as string, convert to int
         
         query = """
             SELECT w.*, 
@@ -48,7 +48,7 @@ def get_watchlists():
 def get_watchlist_details(watchlist_id):
     """Get watchlist details with stocks"""
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # identity stored as string, convert to int
         
         watchlist_query = """
             SELECT * FROM watchlists 
@@ -102,7 +102,7 @@ def get_watchlist_details(watchlist_id):
 def create_watchlist():
     """Create new watchlist"""
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # identity stored as string, convert to int
         data = request.get_json()
         
         name = data.get('name', 'My Watchlist').strip()
@@ -146,7 +146,7 @@ def create_watchlist():
 def add_to_watchlist(watchlist_id):
     """Add stock to watchlist"""
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # identity stored as string, convert to int
         data = request.get_json()
         
         symbol = data.get('symbol', '').strip().upper()
@@ -219,7 +219,7 @@ def add_to_watchlist(watchlist_id):
 def remove_from_watchlist(watchlist_id, symbol):
     """Remove stock from watchlist"""
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # identity stored as string, convert to int
         symbol = symbol.upper()
         
         watchlist_query = """
@@ -260,7 +260,7 @@ def remove_from_watchlist(watchlist_id, symbol):
 def delete_watchlist(watchlist_id):
     """Delete watchlist"""
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # identity stored as string, convert to int
         
         watchlist_query = """
             SELECT * FROM watchlists 

@@ -1,57 +1,95 @@
-import React from 'react'
+import { motion } from 'framer-motion';
 
-const Button = ({ 
-  children, 
-  onClick, 
-  type = 'button',
-  variant = 'primary', 
-  disabled = false,
-  loading = false,
-  className = '',
+const sizeClasses = {
+  sm: 'px-3 py-1.5 text-xs',
+  md: 'px-5 py-2.5 text-sm',
+  lg: 'px-7 py-3.5 text-base',
+};
+
+const variantClasses = {
+  primary: 'btn-primary',
+  secondary: 'btn-secondary',
+  success: 'btn-success',
+  danger: 'btn-danger',
+  ghost: 'btn-ghost',
+};
+
+/**
+ * Premium Button component for Nexus Trade.
+ *
+ * @param {'primary'|'secondary'|'success'|'danger'|'ghost'} variant
+ * @param {'sm'|'md'|'lg'} size
+ * @param {boolean} fullWidth
+ * @param {boolean} loading
+ * @param {boolean} disabled
+ * @param {Function} onClick
+ * @param {React.ReactNode} children
+ * @param {'button'|'submit'|'reset'} type
+ * @param {string} className
+ */
+export default function Button({
+  variant = 'primary',
+  size = 'md',
   fullWidth = false,
-  size = 'md'
-}) => {
-  const baseClasses = 'font-semibold rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed'
-  
-  const sizeClasses = {
-    sm: 'px-4 py-2 text-sm',
-    md: 'px-6 py-3 text-base',
-    lg: 'px-8 py-4 text-lg'
-  }
-  
-  const variantClasses = {
-    primary: 'btn-primary',
-    secondary: 'btn-secondary',
-    success: 'bg-success hover:bg-success/80 text-white',
-    danger: 'bg-danger hover:bg-danger/80 text-white',
-    outline: 'border-2 border-primary text-primary hover:bg-primary hover:text-black'
-  }
-  
-  const widthClass = fullWidth ? 'w-full' : ''
-  
+  loading = false,
+  disabled = false,
+  onClick,
+  children,
+  type = 'button',
+  className = '',
+}) {
+  const isDisabled = disabled || loading;
+
   return (
-    <button
+    <motion.button
       type={type}
       onClick={onClick}
-      disabled={disabled || loading}
-      className={`
-        ${baseClasses}
-        ${sizeClasses[size]}
-        ${variantClasses[variant]}
-        ${widthClass}
-        ${className}
-      `}
+      disabled={isDisabled}
+      whileTap={isDisabled ? {} : { scale: 0.97 }}
+      whileHover={isDisabled ? {} : { scale: 1.02 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+      className={[
+        'btn',
+        variantClasses[variant] ?? 'btn-primary',
+        sizeClasses[size] ?? sizeClasses.md,
+        fullWidth ? 'w-full' : '',
+        isDisabled ? 'opacity-50 cursor-not-allowed' : '',
+        'relative overflow-hidden select-none',
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
     >
-      {loading ? (
-        <div className="flex items-center justify-center gap-2">
-          <div className="loading-spinner w-5 h-5"></div>
-          <span>Loading...</span>
-        </div>
-      ) : (
-        children
+      {/* Shimmer highlight on hover */}
+      {!isDisabled && (
+        <motion.span
+          className="absolute inset-0 pointer-events-none"
+          initial={{ x: '-100%', opacity: 0 }}
+          whileHover={{ x: '100%', opacity: 1 }}
+          transition={{ duration: 0.5, ease: 'easeInOut' }}
+          style={{
+            background:
+              'linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)',
+          }}
+        />
       )}
-    </button>
-  )
-}
 
-export default Button
+      {/* Content */}
+      <span className="relative z-10 flex items-center justify-center gap-2">
+        {loading ? (
+          <>
+            {/* Spinning ring */}
+            <span
+              className="inline-block rounded-full border-2 border-current border-t-transparent animate-spin"
+              style={{ width: '1em', height: '1em' }}
+              aria-hidden="true"
+            />
+            <span>Loading…</span>
+          </>
+        ) : (
+          children
+        )}
+      </span>
+    </motion.button>
+  );
+}
